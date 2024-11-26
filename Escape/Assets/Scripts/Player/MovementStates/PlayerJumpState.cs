@@ -6,8 +6,6 @@ public class PlayerJumpState : PlayerBaseState
 {
     [SerializeField] private float jumpStrength = 5;
 
-    [SerializeField] private LayerMask groundMask;
-
     public override void OnEnable()
     {
     }
@@ -18,7 +16,10 @@ public class PlayerJumpState : PlayerBaseState
 
     public override void EnterState(PlayerController player)
     {
-        player.rb.AddForce(0, jumpStrength, 0 , ForceMode.Impulse);
+        // Calculate velocity based on input and walking speed
+        player.velocity += new Vector3(0, jumpStrength, 0);
+
+        player.SwitchState(player.fallState);
     }
 
     public override void UpdateState(PlayerController player)
@@ -27,9 +28,5 @@ public class PlayerJumpState : PlayerBaseState
 
     public override void OnCollisionEnterState(PlayerController player, Collision collision)
     {
-        if (((1 << collision.gameObject.layer) & groundMask) != 0)
-        {
-            player.SwitchState(player.WalkState);
-        }
     }
 }

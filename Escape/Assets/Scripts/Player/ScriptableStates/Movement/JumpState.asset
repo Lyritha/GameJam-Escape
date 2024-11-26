@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4cfd363eac86cd44a80c2dfc256cab05, type: 3}
   m_Name: JumpState
   m_EditorClassIdentifier: 
-  jumpStrength: 5
+  jumpStrength: 7
   groundMask:
     serializedVersion: 2
     m_Bits: 8

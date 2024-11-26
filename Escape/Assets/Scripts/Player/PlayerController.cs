@@ -5,18 +5,20 @@ public class PlayerController : MonoBehaviour
 {
     [SerializeField] private CinemachineCamera cinemachineCamera;
     [SerializeField] private InputLayer inputLayer;
+    [SerializeField] private Rigidbody rb;
 
-    public Rigidbody rb;
-    [SerializeField] private Collider playerCollider;
+    public CollideSlide collideSlide;
+    public Vector3 velocity = Vector3.zero;
 
-    //state machine
+    // State machine
     private PlayerBaseState currentMovementState;
     [Header("StateMachine objects")]
-    public PlayerWalkState WalkState;
-    public PlayerRunState RunState;
-    public PlayerJumpState JumpState;
-    public PlayerWalkSlopeState SlopeState;
+    public PlayerBaseState WalkState;
+    public PlayerBaseState RunState;
+    public PlayerBaseState JumpState;
+    public PlayerBaseState fallState;
 
+    // Player state flags
     public Vector2 Movement { get; private set; } = Vector2.zero;
     public bool IsJumping { get; private set; } = false;
     public bool IsSprinting { get; private set; } = false;
@@ -46,21 +48,42 @@ public class PlayerController : MonoBehaviour
 
     public void SwitchState(PlayerBaseState state)
     {
+        Move();
+
         currentMovementState = state;
         state.EnterState(this);
     }
 
     private void FixedUpdate()
     {
+
+        UpdateRotation();
+    }
+
+
+    private void UpdateRotation()
+    {
+        // Rotate towards the camera direction (non-physics-related, in Update)
         if (!IsFreeLooking)
         {
-            // Get camera directions, ignoring vertical rotation
             Vector3 cameraForward = Vector3.Scale(Camera.main.transform.forward, new Vector3(1, 0, 1)).normalized;
-
-            // Rotate towards camera's forward direction
             Quaternion targetRotation = Quaternion.LookRotation(cameraForward);
-            transform.rotation = Quaternion.RotateTowards(transform.rotation, targetRotation, 500f * Time.deltaTime);
+            transform.rotation = Quaternion.RotateTowards(transform.rotation, targetRotation, 5);
         }
+    }
+
+    public void Move()
+    {
+        // Apply velocity adjustments for collisions and gravity
+        //velocity += Physics.gravity * Time.fixedDeltaTime;
+        velocity = collideSlide.CollideAndSlide(velocity, transform.position, 0, false, velocity);
+        //velocity += collideSlide.CollideAndSlide(Physics.gravity, transform.position + velocity, 0, true, Physics.gravity);
+
+        // Apply the movement to the player's position
+        transform.localPosition += velocity;
+
+        // Apply damping
+        velocity *= 0.9f; // Adjust as needed
     }
 
     private void OnMove(Vector2 input) => Movement = input;

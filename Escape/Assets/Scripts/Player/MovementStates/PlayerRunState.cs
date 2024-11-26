@@ -21,13 +21,14 @@ public class PlayerRunState : PlayerBaseState
 
     public override void UpdateState(PlayerController player)
     {
+        // Get player input for movement
         Vector2 movement = player.Movement;
-        Vector3 force = new Vector3(movement.x, 0f, movement.y) * (Time.deltaTime * 100);
-        player.rb.AddRelativeForce(force * runSpeed);
 
-        // if player is jumping, switch to that state
+        // Calculate velocity based on input and walking speed
+        player.velocity += Time.deltaTime * runSpeed * new Vector3(movement.x, 0f, movement.y);
+
+        //check if you need to switch
         if (player.IsJumping) player.SwitchState(player.JumpState);
-        if (player.SlopeState.IsOnSlope(player)) player.SwitchState(player.SlopeState);
         if (!player.IsSprinting) player.SwitchState(player.WalkState);
     }
     public override void OnCollisionEnterState(PlayerController player, Collision collision)
