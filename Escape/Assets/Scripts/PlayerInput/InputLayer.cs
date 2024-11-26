@@ -1,3 +1,4 @@
+using System;
 using UnityEngine;
 using UnityEngine.Events;
 using UnityEngine.InputSystem;
@@ -7,10 +8,13 @@ public class InputLayer : ScriptableObject, InputSystem.IPlayerActions, InputSys
 {
     public UnityAction<Vector2> moveEvent;
     public UnityAction<Vector2> lookEvent;
+    public UnityAction<bool> freeLookEvent;
     public UnityAction<bool> fire1Event;
     public UnityAction<bool> fire2Event;
     public UnityAction<bool> jumpEvent;
-
+    public UnityAction<bool> sprintEvent;
+    public UnityAction<bool> interactEvent;
+    public UnityAction<bool> crouchEvent;
 
 
     private InputSystem inputSystem;
@@ -37,55 +41,35 @@ public class InputLayer : ScriptableObject, InputSystem.IPlayerActions, InputSys
         inputSystem.UI.Disable();
     }
 
-    public void OnMove(InputAction.CallbackContext context)
-    {
-        moveEvent?.Invoke(context.ReadValue<Vector2>());
-    }
 
-    public void OnLook(InputAction.CallbackContext context)
-    {
-        lookEvent?.Invoke(context.ReadValue<Vector2>());
-    }
 
-    public void OnAttack(InputAction.CallbackContext context)
-    {
-        fire1Event?.Invoke(context.ReadValue<bool>());
-    }
+    //Player
 
-    public void OnAttackSecondary(InputAction.CallbackContext context)
-    {
-        fire2Event?.Invoke(context.ReadValue<float>() == 1);
-    }
+    //invokes a vector2 event
+    private void InvokeEvent(InputAction.CallbackContext context, UnityAction<Vector2> eventAction)
+        => eventAction?.Invoke(context.ReadValue<Vector2>());
 
-    public void OnInteract(InputAction.CallbackContext context)
-    {
+    //invokes a bool event, converting the float to bool
+    private void InvokeEvent(InputAction.CallbackContext context, UnityAction<bool> eventAction)
+        => eventAction?.Invoke(context.ReadValue<float>() == 1);
 
-    }
 
-    public void OnCrouch(InputAction.CallbackContext context)
-    {
+    public void OnMove(InputAction.CallbackContext context) => InvokeEvent(context, moveEvent);
+    public void OnLook(InputAction.CallbackContext context) => InvokeEvent(context, lookEvent);
+    public void OnAttack(InputAction.CallbackContext context) => InvokeEvent(context, fire1Event);
+    public void OnAttackSecondary(InputAction.CallbackContext context) => InvokeEvent(context, fire2Event);
+    public void OnInteract(InputAction.CallbackContext context) => InvokeEvent(context, interactEvent);
+    public void OnCrouch(InputAction.CallbackContext context) => InvokeEvent(context, crouchEvent);
+    public void OnJump(InputAction.CallbackContext context) => InvokeEvent(context, jumpEvent);
+    public void OnSprint(InputAction.CallbackContext context) => InvokeEvent(context, sprintEvent);
+    public void OnFreeLook(InputAction.CallbackContext context) => InvokeEvent(context, freeLookEvent);
 
-    }
 
-    public void OnJump(InputAction.CallbackContext context)
-    {
-        jumpEvent?.Invoke(context.ReadValue<float>() == 1);
-    }
 
-    public void OnPrevious(InputAction.CallbackContext context)
-    {
 
-    }
 
-    public void OnNext(InputAction.CallbackContext context)
-    {
+    //UI
 
-    }
-
-    public void OnSprint(InputAction.CallbackContext context)
-    {
-
-    }
 
     public void OnNavigate(InputAction.CallbackContext context)
     {

@@ -1,29 +1,27 @@
-using System;
 using UnityEngine;
 
-[Serializable]
+[CreateAssetMenu(fileName = "WalkState", menuName = "Scriptable Objects/PlayerStates/WalkState")]
 public class PlayerWalkState : PlayerBaseState
 {
-    float walkSpeed = 10;
+    [SerializeField] private float walkSpeed = 3f;
 
-    public override void EnterState(PlayerController player)
-    {
-        Debug.Log("started walking");
+    public override void OnEnable() 
+    { 
     }
+    public override void OnDisable() { }
 
-    public override void OnCollisionEnter(PlayerController player, Collision collision)
-    {
-
-    }
+    public override void EnterState(PlayerController player) { }
 
     public override void UpdateState(PlayerController player)
     {
+        Vector2 movement = player.Movement;
+        Vector3 force = new Vector3(movement.x, 0f, movement.y) * (Time.deltaTime * 100);
+        player.rb.AddRelativeForce(force * walkSpeed);
 
-        Vector2 movement = player.movement;
-        Vector3 force = new(movement.x, 0f, movement.y);
-        player.Rb.AddRelativeForce(force * walkSpeed);
-
-        // if player is jumping, switch to that state
         if (player.IsJumping) player.SwitchState(player.JumpState);
+        if (player.SlopeState.IsOnSlope(player)) player.SwitchState(player.SlopeState);
+        if (player.IsSprinting) player.SwitchState(player.RunState);
     }
+
+    public override void OnCollisionEnterState(PlayerController player, Collision collision) { }
 }

@@ -1,12 +1,14 @@
 using System;
 using UnityEngine;
 
-[Serializable]
-public abstract class PlayerBaseState
+public abstract class PlayerBaseState : ScriptableObject
 {
+    public abstract void OnEnable();
+    public abstract void OnDisable();
+
     public abstract void EnterState(PlayerController player);
 
     public abstract void UpdateState(PlayerController player);
 
-    public abstract void OnCollisionEnter(PlayerController player, Collision collision);
+    public abstract void OnCollisionEnterState(PlayerController player, Collision collision);
 }
