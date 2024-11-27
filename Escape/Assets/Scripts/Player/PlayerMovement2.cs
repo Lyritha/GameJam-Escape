@@ -6,12 +6,6 @@ public class PlayerMovement : MonoBehaviour
     [SerializeField] private float moveSpeed = 5f; // Movement speed
     [SerializeField] private Vector3 gravity = new(0, -.098f, 0); // Gravity force
 
-    [SerializeField] private Transform groundCheck; // For checking if player is grounded
-    [SerializeField] private LayerMask groundMask; // Ground layer mask
-
-    private Vector3 velocity;
-    private bool isGrounded;
-
     private Rigidbody rb;
     [SerializeField] private CollideSlide collideSlide;
 

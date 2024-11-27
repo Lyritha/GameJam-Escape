@@ -45,7 +45,8 @@ public class CollideSlide : MonoBehaviour
             }
             else
             {
-                Vector3 footPosition = _p1 + Vector3.down * _radius;
+                Vector3 footPosition = (_p1 + Vector3.down * _radius) + (Vector3.up * SkinWidth);
+                Debug.DrawRay(footPosition, Vector3.forward);
 
                 if (IsStep(footPosition, velocity, hit))
                 {
@@ -76,8 +77,6 @@ public class CollideSlide : MonoBehaviour
     private bool IsStep(Vector3 footPos, Vector3 vel, RaycastHit hit)
     {
         Vector3 horizontalVel = new(vel.x, 0, vel.z);
-
-        Debug.DrawRay(footPos, horizontalVel);
 
         // Check if raycast hits and the angle is acceptable, if not, then it isn't a step
         if (!Physics.Raycast(footPos, horizontalVel, out RaycastHit footHit, 10, collisionMask) ||
