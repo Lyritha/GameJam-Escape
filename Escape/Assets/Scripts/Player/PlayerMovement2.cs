@@ -1,16 +1,43 @@
 using System;
+using System.Collections;
+using Unity.VisualScripting;
 using UnityEngine;
 
 public class PlayerMovement : MonoBehaviour
 {
-    [SerializeField] private float moveSpeed = 5f; // Movement speed
-    [SerializeField] private Vector3 gravity = new(0, -.098f, 0); // Gravity force
+    [SerializeField] InputLayer inputLayer;
+
+    [SerializeField] private float moveSpeed = 2f; // Movement speed
+    [SerializeField] private float runSpeed = 4f; // Movement speed
+
+    [SerializeField] private float gravity = -9.8f;  // Gravitational acceleration
+
 
     private Rigidbody rb;
     [SerializeField] private CollideSlide collideSlide;
+    [SerializeField] private GroundChecker ground;
 
-    float horizontal = 0;
-    float vertical = 0;
+    // Player state flags
+    public Vector2 Movement { get; private set; } = Vector2.zero;
+    public bool IsJumping { get; private set; } = false;
+    public bool IsSprinting { get; private set; } = false;
+    public bool IsFreeLooking { get; private set; } = false;
+
+    private void OnEnable()
+    {
+        inputLayer.moveEvent += OnMove;
+        inputLayer.jumpEvent += OnJump;
+        inputLayer.sprintEvent += OnSprint;
+        inputLayer.freeLookEvent += OnFreeLookAround;
+    }
+
+    private void OnDisable()
+    {
+        inputLayer.moveEvent -= OnMove;
+        inputLayer.jumpEvent -= OnJump;
+        inputLayer.sprintEvent -= OnSprint;
+        inputLayer.freeLookEvent -= OnFreeLookAround;
+    }
 
     private void Start()
     {
@@ -18,18 +45,11 @@ public class PlayerMovement : MonoBehaviour
         rb.useGravity = false; // Disable built-in gravity since we're applying custom gravity
     }
 
-    private void Update()
-    {
-        // Get movement input (WASD/Arrow keys)
-        horizontal = Input.GetAxis("Horizontal");
-        vertical = Input.GetAxis("Vertical");
-    }
-
     private void FixedUpdate()
     {
         // Calculate movement direction
-        Vector3 moveDirection = transform.right * horizontal + transform.forward * vertical;
-        Vector3 moveAmount = moveDirection * moveSpeed;
+        Vector3 moveDirection = transform.right * Movement.x + transform.forward * Movement.y;
+        Vector3 moveAmount = moveDirection * ( (IsSprinting ? runSpeed : moveSpeed));
         moveAmount.y = 0;
 
         // Handle player movement input
@@ -39,8 +59,13 @@ public class PlayerMovement : MonoBehaviour
     private Vector3 Move(Vector3 moveAmount)
     {
         moveAmount = collideSlide.CollideAndSlide(moveAmount, transform.position, 0, false, moveAmount);
-        moveAmount += collideSlide.CollideAndSlide(gravity, transform.position + moveAmount, 0, true, gravity);
+        moveAmount += collideSlide.CollideAndSlide(Vector3.up * gravity, transform.position + moveAmount, 0, true, Vector3.up * gravity);
 
         return moveAmount;
     }
+
+    private void OnMove(Vector2 input) => Movement = input;
+    private void OnJump(bool input) => IsJumping = input;
+    private void OnSprint(bool input) => IsSprinting = input;
+    private void OnFreeLookAround(bool input) => IsFreeLooking = input;
 }
